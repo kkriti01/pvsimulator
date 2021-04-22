@@ -1,0 +1,6 @@
+*.pyc
+**/*.pyc
+.idea/*
+*.log
+venv/
+.vscode/*

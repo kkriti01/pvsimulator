@@ -1,0 +1,14 @@
+version: '2'
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      FLASK_ENV: development
+  rabbitmq:
+    restart: always
+    image: rabbitmq:3.8-management-alpine
+    ports:
+      - 5673:5673
+      - 15673:15673

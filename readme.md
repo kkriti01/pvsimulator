@@ -31,4 +31,6 @@ mapping in the `docker-compose.yml` file
     meter reading and write it to the file.
 3. web.py: It shows a plot which plots power meter reading(KW) with time.
 
- 
+ ## Improvement:
+ 1. More test cases can be added.
+ 2. Currently plot shows data for current date, one parameter can be added to select date and show reading for that date.

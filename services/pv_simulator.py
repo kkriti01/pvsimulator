@@ -1,61 +1,81 @@
-# Generate a simulated PV power value and the last step is to add this value to the meter value and output the result.
 import json
+import logging
 import os
+import random
 from datetime import datetime
 
 import pandas as pd
-import random
+
+from services.broker import MQConnector
+from settings import VHOST, POWER_METER_QUEUE, LOG_DIR_PATH, PV_SIMULATOR_MIN_WEIGHT, PV_SIMULATOR_MAX_WEIGHT
+
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 
-def get_power_meter_reading(data: bytes) -> dict:
+def get_current_time_weight() -> float:
     """
-    Reads power consumption meter reading published from meter reading
+    Poor man time wight value
+
+    get a weight value from current time for PV power simulation
+
+    this is so simulate that power of a PV cell increase from 4 AM to 12 noon and then
+    start decreasing .
     """
-    return json.loads(data.decode("utf-8").replace("'", '"'))
+    now = datetime.now()
+    hour = float(now.strftime('%-I'))
+    minute = float(now.strftime('%-M'))
+    time_weight = hour + (minute / 60)
+    if now.strftime('%p') == "PM":
+        time_weight = 12 - time_weight
+    return time_weight
 
 
-def simulate_power_value(data: dict) -> int:
+def get_simulated_power_value():
     """
-    Steps
-    1. Get power meter reading
-    2.
+    Poor man Simulation of PV power, weighted by current time.
     """
-    # I  am assuming here that pv simulation will take power meter as input and will generate some output which
-    # I am taking some random number
-    return random.randint(0, 10)
+    current_time_weight = get_current_time_weight()
+    return current_time_weight * random.uniform(PV_SIMULATOR_MIN_WEIGHT, PV_SIMULATOR_MAX_WEIGHT)
 
 
 def write_reading_to_file(data: dict):
-    df = pd.DataFrame(data, index=["time_of_reading", "meter_power_value", "pv_power_value", "simulated_power"])
-    output_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "power_reading_file")
-    if not os.path.exists(output_dir):
-        os.mkdir(output_dir)
-    file_name = os.path.join(output_dir, "Meter_reading_on_{}_.csv".format(datetime.now().strftime('%Y-%m-%d')))
-    if not os.path.isfile(file_name):
-        df.to_csv(file_name, mode='a', index=False)
+    LOG_DIR_PATH.mkdir(parents=True, exist_ok=True)  # create dir if does not exist
+
+    df = pd.DataFrame(data, index=["timestamp", "meter", "pv_power", "sum"])
+    file_path = LOG_DIR_PATH.joinpath("meter_reading_on_{}_.csv".format(datetime.now().strftime('%Y-%m-%d')))
+    if not os.path.isfile(file_path):
+        df.to_csv(file_path, index=False)
     else:
-        df.to_csv(file_name, mode='a', index=False, header=False)
+        df.to_csv(file_path, mode='a', index=False, header=False)
 
 
 def run_simulator(data: bytes) -> None:
     """
-    # Steps:
-    Step 1: Get power meter reading
-    Step 2: Simulate power value
-    Step 3: Add simulated value obtained in step 2 with power meter reading obtained in step 1
-    Step 4: Add data obtained in step 3 to a file.
+    Poor man PV Simulator
+
+    Simulate PV power and write to log file.
     """
 
-    # Step 1:
-    meter_reading = get_power_meter_reading(data)
+    # read meter data
+    meter_data = json.loads(data.decode("utf-8").replace("'", '"'))
+    meter_power = meter_data['meter_power_value']  # in Watt
 
-    # Step 2:
-    power_value = simulate_power_value(meter_reading)
-    meter_reading["pv_power_value"] = power_value
+    # Get PV power
+    pv_power = get_simulated_power_value()  # in Kilo Watt
 
-    # Step 3:
-    power_value += meter_reading["meter_power_value"]
-    meter_reading["simulated_power"] = power_value
+    # sum of the power
+    total_power = pv_power + (meter_power / 1000)  # Kilo Watt
 
-    # Step 4:
-    write_reading_to_file(meter_reading)
+    data = {
+        'timestamp': datetime.now().strftime('%Y-%m-%dT%H:%M:%S'),
+        'meter': meter_power,  # Watt
+        'pv_power': pv_power,  # kilo Watt
+        'sum': total_power,  # kilo Watt
+    }
+    write_reading_to_file(data)
+
+
+if __name__ == '__main__':
+    logging.info("*** PV Simulator started ***")
+    connector = MQConnector(vhost=VHOST)
+    connector.consume_queue(POWER_METER_QUEUE, run_simulator)

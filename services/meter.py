@@ -1,33 +1,30 @@
-# Produce messages to the broker with random but continuous values from 0 to 9000 Watts.
 import logging
 import random
-import time
 from datetime import datetime
 
-from config.constants import MIN_POWER_CONSUMPTION, MAX_POWER_CONSUMPTION
-from mq.produce_messages import MQProducer
-
+from services.broker import MQConnector
+from settings import MIN_HOME_POWER_CONSUMPTION, MAX_HOME_POWER_CONSUMPTION, VHOST, POWER_METER_QUEUE
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 
 def get_power_consumption() -> int:
     """
-    Return random meter power generated in range of [0, 9000] watt
+    Simulate home power consumption in Watts
     """
-    return random.randrange(MIN_POWER_CONSUMPTION, MAX_POWER_CONSUMPTION)
+    return random.randrange(MIN_HOME_POWER_CONSUMPTION, MAX_HOME_POWER_CONSUMPTION)
 
 
 def publish_message(meter_reading: int) -> None:
     """
-    Publish generated meter power reading to pv_simulator service
+    Publish power consumption to the broker
     """
-    current_timestamp = datetime.today()
+    current_timestamp = datetime.now()
     data = {"time_of_reading": current_timestamp.strftime('%Y-%m-%dT%H:%M:%S'), "meter_power_value": meter_reading}
 
-    logging.info("Data getting published to the PV broker is: {}".format(data))
-    mq = MQProducer(data)
-    mq.produce()
+    connector = MQConnector(vhost=VHOST)
+    connector.push_message(POWER_METER_QUEUE, data)
+    logging.info("Published message: {} to queue".format(data))
 
 
 def run():
@@ -40,16 +37,14 @@ def run():
 
     while True:
 
-        # Step 1:
         logging.info("Started meter reading at {}".format(datetime.today()))
         meter_reading = get_power_consumption()
         logging.info("Meter reading on time: {} is {}".format(datetime.today(), meter_reading))
 
-        # Step 2:
         publish_message(meter_reading)
         logging.info("Meter reading is published to PV broker")
 
-        # Step 3:
-        time.sleep(60)
 
-run()
+if __name__ == '__main__':
+    run()
+

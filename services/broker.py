@@ -2,7 +2,7 @@ import logging
 
 import pika
 
-from config.constants import MQ_HOST
+from settings import MQ_HOST
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 

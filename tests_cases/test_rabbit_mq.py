@@ -1,8 +1,8 @@
 import json
 import unittest
 
-from config.constants import VHOST
-from mq.connection import MQConnector
+from settings import VHOST
+from services.broker import MQConnector
 
 
 class TestRabbitMq(unittest.TestCase):

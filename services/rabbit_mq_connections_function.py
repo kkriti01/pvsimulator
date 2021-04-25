@@ -15,7 +15,6 @@ class MQConnector:
 
     @staticmethod
     def connect(url):
-        print(url)
         params = pika.URLParameters(url)
         connection = pika.BlockingConnection(params)
         logging.info("Established connection to RabbitMQ server")

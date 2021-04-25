@@ -3,7 +3,7 @@ import random
 import time
 from datetime import datetime
 
-from services.broker import MQConnector
+from services.rabbit_mq_connections_function import MQConnector
 from settings import MIN_HOME_POWER_CONSUMPTION, MAX_HOME_POWER_CONSUMPTION, POWER_METER_QUEUE
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)

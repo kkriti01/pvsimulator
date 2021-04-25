@@ -7,7 +7,7 @@ from datetime import datetime
 
 import pandas as pd
 
-from services.broker import MQConnector
+from services.rabbit_mq_connections_function import MQConnector
 from settings import POWER_METER_QUEUE, LOG_DIR_PATH, PV_SIMULATOR_MIN_WEIGHT, PV_SIMULATOR_MAX_WEIGHT,\
     LOG_FILE_NAME_TEMPLATE
 

@@ -1,11 +1,12 @@
 import base64
-import os
 from datetime import datetime
 from io import BytesIO
 
 import pandas as pd
 from flask import Flask
 from matplotlib.figure import Figure
+
+from settings import LOG_DIR_PATH
 
 app = Flask(__name__)
 
@@ -14,20 +15,23 @@ app = Flask(__name__)
 def pv_simulator():
 
     # Create data here for plotting
-    file_name = os.path.join("services\power_reading_file",
-                             "Meter_reading_on_{}_.csv".format(datetime.now().strftime('%Y-%m-%d')))
+    file_name = LOG_DIR_PATH.joinpath("meter_reading_on_{}_.csv".format(datetime.now().strftime('%Y-%m-%d')))
     data = pd.read_csv(file_name)
-    data['time_of_reading'] = pd.to_datetime(data['time_of_reading'])
-    data = data[['time_of_reading', 'meter_power_value']].rename(columns={"time_of_reading": "Time of Reading",
-                                                                          "meter_power_value": "Power (KW)"})
+    data['timestamp'] = pd.to_datetime(data['timestamp'])
+    data = data[['timestamp', 'sum']].rename(
+        columns={
+            "timestamp": "timestamp",
+            "sum": "Power (KW)"
+        }
+    )
 
     # Plot data here
     fig = Figure()
     ax = fig.subplots()
-    fig.suptitle('PV Meter Reading', fontsize=20)
-    ax.set_xlabel('Time of Reading', fontsize=18)
+    fig.suptitle('PV Simulation (refresh to see current data)', fontsize=20)
+    ax.set_xlabel('timestamp', fontsize=18)
     ax.set_ylabel('Power (KW)', fontsize=16)
-    data.groupby(data["Time of Reading"].dt.hour).plot(x='Time of Reading', y='Power (KW)', ax=ax, legend=False)
+    data.groupby(data["timestamp"].dt.hour).plot(x='timestamp', y='Power (KW)', ax=ax, legend=False)
 
     # Save it to a temporary buffer.
     buf = BytesIO()

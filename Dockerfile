@@ -1,5 +1,4 @@
 FROM ubuntu:20.04
-MAINTAINER Kriti Kumari "kriti.cs10@gmail.com"
 
 RUN apt-get update -y && \
     apt-get install -y python3-pip python3-dev

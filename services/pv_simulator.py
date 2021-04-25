@@ -1,13 +1,14 @@
 import json
 import logging
 import os
+import time
 import random
 from datetime import datetime
 
 import pandas as pd
 
 from services.broker import MQConnector
-from settings import VHOST, POWER_METER_QUEUE, LOG_DIR_PATH, PV_SIMULATOR_MIN_WEIGHT, PV_SIMULATOR_MAX_WEIGHT
+from settings import POWER_METER_QUEUE, LOG_DIR_PATH, PV_SIMULATOR_MIN_WEIGHT, PV_SIMULATOR_MAX_WEIGHT
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
@@ -49,16 +50,15 @@ def write_reading_to_file(data: dict):
         df.to_csv(file_path, mode='a', index=False, header=False)
 
 
-def run_simulator(data: bytes) -> None:
+def read_power_data(data: dict) -> None:
     """
     Poor man PV Simulator
 
     Simulate PV power and write to log file.
     """
 
-    # read meter data
-    meter_data = json.loads(data.decode("utf-8").replace("'", '"'))
-    meter_power = meter_data['meter_power_value']  # in Watt
+    # read meter
+    meter_power = data['meter_power_value']  # in Watt
 
     # Get PV power
     pv_power = get_simulated_power_value()  # in Kilo Watt
@@ -75,7 +75,21 @@ def run_simulator(data: bytes) -> None:
     write_reading_to_file(data)
 
 
+def simulator(channel, method_frame, header_frame, body):
+    """
+    callback to rabbitmq connection
+
+    """
+    body = json.loads(body.decode("utf-8").replace("'", '"'))
+    read_power_data(body)
+    channel.basic_ack(delivery_tag=method_frame.delivery_tag)
+
+
 if __name__ == '__main__':
-    logging.info("*** PV Simulator started ***")
-    connector = MQConnector(vhost=VHOST)
-    connector.consume_queue(POWER_METER_QUEUE, run_simulator)
+
+    while True:
+        logging.info("*** PV Simulator started ***")
+        connector = MQConnector()
+        connector.consume_queue(POWER_METER_QUEUE, simulator)
+        connector.start_consuming()
+        time.sleep(1)

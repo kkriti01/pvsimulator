@@ -2,22 +2,19 @@ import logging
 
 import pika
 
-from settings import MQ_HOST
+from settings import RABBIT_MQ_HOST
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
-MQ_URL_MAP = {
-    'PVSimulator': MQ_HOST,
-}
-
 
 class MQConnector:
-    def __init__(self, vhost='PVSimulator'):
+    def __init__(self):
         self.exchange = ''
-        self.connection = self.connect(url=MQ_URL_MAP[vhost])
+        self.connection = self.connect(url=RABBIT_MQ_HOST)
         self.channel = self.channel()
 
-    def connect(self, url):
+    @staticmethod
+    def connect(url):
         params = pika.URLParameters(url)
         connection = pika.BlockingConnection(params)
         logging.info("Established connection to RabbitMQ server")

@@ -6,7 +6,7 @@ import pandas as pd
 from flask import Flask
 from matplotlib.figure import Figure
 
-from settings import LOG_DIR_PATH
+from settings import LOG_DIR_PATH, LOG_FILE_NAME_TEMPLATE
 
 app = Flask(__name__)
 
@@ -15,7 +15,7 @@ app = Flask(__name__)
 def pv_simulator():
 
     # Create data here for plotting
-    file_name = LOG_DIR_PATH.joinpath("meter_reading_on_{}_.csv".format(datetime.now().strftime('%Y-%m-%d')))
+    file_name = LOG_DIR_PATH.joinpath(LOG_FILE_NAME_TEMPLATE.format(datetime.now().strftime('%Y-%m-%d')))
     data = pd.read_csv(file_name)
     data['timestamp'] = pd.to_datetime(data['timestamp'])
     data = data[['timestamp', 'sum']].rename(

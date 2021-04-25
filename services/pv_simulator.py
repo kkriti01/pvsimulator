@@ -8,7 +8,8 @@ from datetime import datetime
 import pandas as pd
 
 from services.broker import MQConnector
-from settings import POWER_METER_QUEUE, LOG_DIR_PATH, PV_SIMULATOR_MIN_WEIGHT, PV_SIMULATOR_MAX_WEIGHT
+from settings import POWER_METER_QUEUE, LOG_DIR_PATH, PV_SIMULATOR_MIN_WEIGHT, PV_SIMULATOR_MAX_WEIGHT,\
+    LOG_FILE_NAME_TEMPLATE
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
@@ -43,7 +44,7 @@ def write_reading_to_file(data: dict):
     LOG_DIR_PATH.mkdir(parents=True, exist_ok=True)  # create dir if does not exist
 
     df = pd.DataFrame(data, index=["timestamp", "meter", "pv_power", "sum"])
-    file_path = LOG_DIR_PATH.joinpath("meter_reading_on_{}_.csv".format(datetime.now().strftime('%Y-%m-%d')))
+    file_path = LOG_DIR_PATH.joinpath(LOG_FILE_NAME_TEMPLATE.format(datetime.now().strftime('%Y-%m-%d')))
     if not os.path.isfile(file_path):
         df.to_csv(file_path, index=False)
     else:

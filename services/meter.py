@@ -30,19 +30,13 @@ def publish_message(meter_reading: int) -> None:
 
 def run():
     """
-    Steps:
-    Step 1: Generate random meter power readings
-    Step 2: Publish generated meter power readings to pv_simulator
-    Step 3: Sleep it for 60 second and then run publish messages again
+    publish meter reading data to thr queue
     """
-
     while True:
-        logging.info("Started meter reading at {}".format(datetime.today()))
+        logging.info('** Started meter reading ** ')
         meter_reading = get_power_consumption()
-        logging.info("Meter reading on time: {} is {}".format(datetime.today(), meter_reading))
 
         publish_message(meter_reading)
-        logging.info("Meter reading is published to PV broker")
         time.sleep(1)
 
 

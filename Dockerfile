@@ -1,23 +1,24 @@
+#FROM python:3.7-alpine
 FROM ubuntu:20.04
+ENV PYTHONUNBUFFERED 1
 
-RUN apt-get update -y && \
-    apt-get install -y python3-pip python3-dev
 
-COPY ./requirements.txt /requirements.txt
+RUN apt-get update -y \
+    && apt-get install -y python3-pip python3-dev
+
+
+COPY requirements.txt ./
+
+RUN pip3 install --upgrade pip==20.0.1
+
+RUN pip install --no-cache-dir -r requirements.txt
 
 WORKDIR /
 
-RUN python3 -m pip install --upgrade pip==20.3.4
-
-RUN pip install -r requirements.txt
-
-COPY . /
-
-CMD [ "python", "./services/meter_reading.py" ]
-CMD [ "python", "./mq/consume_messages.py" ]
-
-ENV FLASK_APP="apis\pvsimulations_apis.py"
-ENV FLASK_RUN_HOST=0.0.0.0
-EXPOSE 5000
 COPY . .
-CMD ["flask", "run"]
+
+EXPOSE 5000
+
+RUN chmod +x start.sh
+
+CMD ["/start.sh"]

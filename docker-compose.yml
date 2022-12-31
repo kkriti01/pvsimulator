@@ -1,0 +1,52 @@
+version: '3.7'
+services:
+  rabbitmq:
+    hostname: rabbitmq
+    restart: always
+    image: rabbitmq:3.8-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    expose:
+      - 5672
+      - 15672
+    ports:
+      - 5672:5672
+      - 15672:15672
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "5672"]
+      interval: 5s
+      timeout: 15s
+      retries: 1
+  meter:
+    build: .
+    restart: on-failure
+    depends_on:
+      - rabbitmq
+    volumes:
+      - ./logs:/logs
+    environment:
+      SERVICE: meter
+  pv-sim:
+    build: .
+    restart: on-failure
+    depends_on:
+      - rabbitmq
+      - meter
+    volumes:
+      - ./logs:/logs
+    environment:
+      SERVICE: pv_simulator
+  web:
+    build: .
+    restart: on-failure
+    depends_on:
+      - rabbitmq
+      - pv-sim
+      - meter
+    volumes:
+      - ./logs:/logs
+    ports:
+      - "7005:7005"
+    environment:
+      SERVICE: web

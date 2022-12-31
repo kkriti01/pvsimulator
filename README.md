@@ -31,7 +31,7 @@ mapping in the `docker-compose.yml` file
 3. web.py: It shows a plot which plots power meter reading(KW) with time.
 
 ## Tests:
-   Change the rabbitmq hostname to localhost in settings `'amqp://guest:guest@localhost:5672'` before running the test.
+   Change the rabbitmq hostname to `localhost` in settings `'amqp://guest:guest@localhost:5672'` before running the test.
    Test can be run as `python3 -m pytest`
  
  ## Improvement:

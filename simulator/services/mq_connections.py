@@ -4,7 +4,7 @@ import pika
 
 from simulator import settings as _settings
 
-logger = logging.getLogger(__name__)
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 
 class MQConnector(object):
@@ -25,7 +25,7 @@ class MQConnector(object):
         """
         params = pika.URLParameters(url)
         connection = pika.BlockingConnection(params)
-        logger.info("Establishing connection to the RabbitMq server")
+        logging.info("Establishing connection to the RabbitMq server")
         return connection
 
     def channel(self):
@@ -37,10 +37,10 @@ class MQConnector(object):
         """
         channel = self.connection.channel()
         channel.basic_qos(prefetch_count=1)
-        logger.info("Created a channel to RabbitMq server")
+        logging.info("Created a channel to RabbitMq server")
         return channel
 
-    def push_message(self, queue: str, message: dict):
+    def push_message(self, queue, message):
         """
         Push message to the queue
 
@@ -55,7 +55,7 @@ class MQConnector(object):
             message = str(message)
         self.channel.basic_publish(self.exchange, queue, message)
 
-    def consume_messages(self, queue: str, callback):
+    def consume_messages(self, queue, callback):
         """
         Consume messages from the queue and callback a function for processing
 

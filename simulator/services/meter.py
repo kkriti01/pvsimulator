@@ -6,7 +6,7 @@ from datetime import datetime
 from simulator import settings as _settings
 from simulator.services.mq_connections import MQConnector
 
-logger = logging.getLogger(__name__)
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 
 def get_meter_reading() -> int:
@@ -33,7 +33,7 @@ def publish_message(meter_reading: int) -> None:
 
     connector = MQConnector()
     connector.push_message(_settings.POWER_METER_QUEUE, data)
-    logger.info("Published message: {} to queue".format(data))
+    logging.info("Published message: {} to queue".format(data))
 
 
 def run():
@@ -42,7 +42,7 @@ def run():
     """
 
     while True:
-        logger.info("********* Starting to read meter reading *****************")
+        logging.info("********* Starting to read meter reading *****************")
         meter_reading = get_meter_reading()
         publish_message(meter_reading)
         time.sleep(1)

@@ -1,12 +1,15 @@
 import csv
 import datetime
 import json
+import logging
 import os
 import random
 import time
 
 from simulator import settings as _settings
 from simulator.services.mq_connections import MQConnector
+
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 
 def get_current_time_weight() -> float:
@@ -47,12 +50,14 @@ def write_power_to_file(data: dict) -> None:
     Args:
         data: Power data reading and simulated power at different time intervals
     """
+    logging.info("Writing simulated power:{} to file".format(data))
 
     header = ["timestamp", "meter_power", "pv_power", "sum"]
     _settings.LOG_DIR_PATH.mkdir(parents=True, exist_ok=True)  # create dir if does not exist
 
     file_path = _settings.LOG_DIR_PATH.joinpath(_settings.LOG_FILE_NAME_TEMPLATE.format(datetime.datetime.now().
                                                                                         strftime('%Y-%m-%d')))
+    logging.info("File path is :{}".format(file_path))
     file_exists = os.path.isfile(file_path)
 
     with open(file_path, 'a', encoding='utf-8-sig') as f:
@@ -76,7 +81,7 @@ def simulate_power(data: dict) -> dict:
     Returns:
         data: Updated dictionary with pv simulated power sum
     """
-
+    logging.info("Simulating power")
     # Meter power reading
     meter_power = data["meter_power_value"]
     meter_power = round(meter_power / 1000, _settings.MAX_POWER_ROUND)  # kilo watt to make it uniform across system
@@ -93,6 +98,8 @@ def simulate_power(data: dict) -> dict:
         "pv_power": pv_power,
         "sum": total_power
     }
+
+    logging.info("Power simulated is :{}".format(data))
 
     return data
 

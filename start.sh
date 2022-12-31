@@ -11,11 +11,8 @@ if [[ $SERVICE = "meter" ]]
 then
   echo "*** Service: METER**"
   python3 -m simulator.services.meter
-elif [[ $SERVICE = "simulator" ]]
+elif [[ $SERVICE = "pv-simulator" ]]
 then
   echo echo "*** Service: PV SIMULATOR**"
-  python3  -m simulator.services.pv_simulator
-else
-  echo "** Service: WEB **"
-  python3 -m simulator.services.web
+  python3 -m simulator.services.pv_simulator
 fi

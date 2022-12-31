@@ -14,7 +14,7 @@ services:
       - 5672:5672
       - 15672:15672
     healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "5672"]
+      test: [ "CMD", "nc", "-z", "localhost", "5672" ]
       interval: 5s
       timeout: 15s
       retries: 1
@@ -22,7 +22,7 @@ services:
     build: .
     restart: on-failure
     depends_on:
-      - rabbitmq
+      - "rabbitmq"
     volumes:
       - ./logs:/logs
     environment:
@@ -36,17 +36,4 @@ services:
     volumes:
       - ./logs:/logs
     environment:
-      SERVICE: pv_simulator
-  web:
-    build: .
-    restart: on-failure
-    depends_on:
-      - rabbitmq
-      - pv-sim
-      - meter
-    volumes:
-      - ./logs:/logs
-    ports:
-      - "7005:7005"
-    environment:
-      SERVICE: web
+      SERVICE: pv-simulator

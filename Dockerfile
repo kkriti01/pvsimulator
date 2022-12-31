@@ -1,10 +1,7 @@
-#FROM python:3.7-alpine
-FROM ubuntu:20.04
+FROM python:3.7-alpine
 ENV PYTHONUNBUFFERED 1
 
-
-RUN apt-get update -y \
-    && apt-get install -y python3-pip python3-dev
+RUN apk add --no-cache --upgrade bash
 
 COPY requirements.txt ./
 
@@ -15,9 +12,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 WORKDIR /
 
 COPY . .
-
-EXPOSE 15671 15672 7005
-
 
 RUN chmod +x start.sh
 

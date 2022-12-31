@@ -1,6 +1,6 @@
 # PV Simulator
 
-## running using docker-compose
+## Running using docker-compose
 1. `docker-compose up`
 1. You'll see `meter` and `pv_simulator` service failing and restarting, this is fine, they are waiting for `rabbitmq` .
 Once `rabbitmq` is up, they'll start normally
@@ -11,7 +11,7 @@ if port `7005` , `5672` and `15672` are busy on the host, please either free the
 mapping in the `docker-compose.yml` file
 
 
-## running manually
+## Running manually
 1. create virtual environment (python >= 3.7)
 1. install dependencies: `pip install -r requirements.txt`
 1. make sure rabbitmq is running

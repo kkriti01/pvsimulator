@@ -37,3 +37,15 @@ services:
       - ./logs:/logs
     environment:
       SERVICE: pv-simulator
+  web:
+    build: .
+    restart: on-failure
+    depends_on:
+      - pv-sim
+      - meter
+    volumes:
+      - ./logs:/logs
+    ports:
+      - "7005:7005"
+    environment:
+      SERVICE: web

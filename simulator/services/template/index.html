@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.plot.ly/plotly-2.0.0.min.js"></script>
+</head>
+<body>
+
+    <div id="myDiv">
+
+    </div>
+    <script>
+        let layout ={
+            title: {
+                text:"PV plot",
+                font: {
+                    family: "Times New Roman",
+                    size: 24
+                },
+            },
+            xaxis: {
+                title: {
+                    text: "Timestamp",
+        font: {
+            family: "Courier New, monospace",
+            size: 18,
+                color: "#7f7f7f"
+                    }
+                }
+                },
+        yaxis: {
+        title: {
+        text: "Power (KW)",
+        font: {
+        family: "Courier New, monospace",
+        size: 18,
+        color: "#7f7f7f"
+        }
+        }
+            }
+}
+        var trace1 = {
+            x: {{x|safe}},
+            y: {{y|safe}},
+            type: 'scatter'
+        };
+
+        var data = [trace1];
+
+        Plotly.newPlot('myDiv', data, layout);
+    </script>
+</body>
+
+</html>

@@ -11,6 +11,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 WORKDIR /
 
+EXPOSE 7005
+
 COPY . .
 
 RUN chmod +x start.sh

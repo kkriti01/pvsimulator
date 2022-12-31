@@ -1,7 +1,7 @@
 # PV Simulator
 
 ## Running using docker-compose
-1. `docker-compose up`
+1. `docker-compose build` `docker-compose up`
 1. You'll see `meter` and `pv_simulator` service failing and restarting, this is fine, they are waiting for `rabbitmq` .
 Once `rabbitmq` is up, they'll start normally
 1. see logs in local `/logs` directory (host log is mapped to container)
@@ -30,6 +30,10 @@ mapping in the `docker-compose.yml` file
     meter reading and write it to the file.
 3. web.py: It shows a plot which plots power meter reading(KW) with time.
 
+## Tests:
+    Change the rabbitmq hostname to localhost in settings `'amqp://guest:guest@localhost:5672'` before running the test.
+    Test can be run as `python3 -m pytest`
+ 
  ## Improvement:
  1. More test cases can be added.
  2. Power value plot can be improved further. Also currently plot shows data for current date, one parameter can be added to select date and show reading for that date.
